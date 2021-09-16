@@ -1,3 +1,4 @@
+import "websocket-polyfill";
 /**
  * @classdesc This is a Peer in illchi system
  */
@@ -49,22 +50,31 @@ declare type data = Blob | ArrayBuffer | ArrayBufferView | ReadableStream<Uint8A
  */
 export declare class Client {
     private readonly _peer;
+    private readonly wsConstructor;
     private readonly _messages;
     private readonly _waiters;
     private _socket?;
     /**
      * @param {Peer} _peer
      */
-    constructor(_peer: Peer);
+    constructor(_peer: Peer, wsConstructor?: {
+        new (url: string, protocols?: string | string[] | undefined): WebSocket;
+        prototype: WebSocket;
+        readonly CLOSED: number;
+        readonly CLOSING: number;
+        readonly CONNECTING: number;
+        readonly OPEN: number;
+    });
     /**
      *  sends data to peer with optional params
      * @returns {Promise<void>}
      * @param {Peer} target - target peer who receive the data
      * @param {data} data - data that will be sent
+     * @param {number} timeout - timeout duration in ms to cancel the context
      * @param {URLSearchParams} params - optional parameters to send to the broker on send
      * @throws {(Error&{statusCode:number})}
      */
-    static send(target: Peer, data: data, params?: URLSearchParams): Promise<void>;
+    static send(target: Peer, data: data, timeout: number, params?: URLSearchParams, agent?: <T = any, R = import("axios").AxiosResponse<T>>(url: string, data?: any, config?: import("axios").AxiosRequestConfig | undefined) => Promise<R>): Promise<void>;
     private _onClose;
     private _onError;
     /**

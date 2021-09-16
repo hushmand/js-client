@@ -1,3 +1,6 @@
+import "websocket-polyfill";
+import axios from 'axios'
+
 /**
  * @classdesc This is a Peer in illchi system
  */
@@ -14,6 +17,7 @@ export class Peer {
     toString() {
         return `${this.broker}/${this.id}`
     }
+
     /**
      * @alias toString
      */
@@ -74,6 +78,7 @@ export class Client {
      */
     constructor(
         private readonly _peer: Peer,
+        private readonly wsConstructor = WebSocket
     ) {
     }
 
@@ -82,20 +87,14 @@ export class Client {
      * @returns {Promise<void>}
      * @param {Peer} target - target peer who receive the data
      * @param {data} data - data that will be sent
+     * @param {number} timeout - timeout duration in ms to cancel the context
      * @param {URLSearchParams} params - optional parameters to send to the broker on send
      * @throws {(Error&{statusCode:number})}
      */
-    static async send(target: Peer, data: data, params?: URLSearchParams) {
-        const response = await fetch(
-            target.toURL('https', params?.toString()),
-            {
-                method: 'POST',
-                keepalive: true,
-                body: data,
-            })
-        if (!response.ok) {
-            throw Object.assign(new Error(response.statusText), {statusCode: response.status})
-        }
+    static async send(target: Peer, data: data, timeout: number, params?: URLSearchParams, agent = axios.post) {
+        await agent(target.toURL('https', params?.toString()), data, {
+            timeout,
+        })
     }
 
     private _onClose() {
@@ -197,7 +196,7 @@ export class Client {
             if (this._socket) {
                 return resolve()
             }
-            this._socket = new WebSocket(this._peer.toURL('wss', params?.toString()))
+            this._socket = new this.wsConstructor(this._peer.toURL('wss', params?.toString()))
             this._socket.addEventListener('error', this._onError.bind(this))
             this._socket.addEventListener('open', this._onOpen.bind(this))
             this._socket.addEventListener('close', this._onClose.bind(this))

@@ -1,3 +1,5 @@
+import "websocket-polyfill";
+import axios from 'axios';
 /**
  * @classdesc This is a Peer in illchi system
  */
@@ -51,8 +53,9 @@ export class Client {
     /**
      * @param {Peer} _peer
      */
-    constructor(_peer) {
+    constructor(_peer, wsConstructor = WebSocket) {
         this._peer = _peer;
+        this.wsConstructor = wsConstructor;
         this._messages = [];
         this._waiters = [];
     }
@@ -61,18 +64,14 @@ export class Client {
      * @returns {Promise<void>}
      * @param {Peer} target - target peer who receive the data
      * @param {data} data - data that will be sent
+     * @param {number} timeout - timeout duration in ms to cancel the context
      * @param {URLSearchParams} params - optional parameters to send to the broker on send
      * @throws {(Error&{statusCode:number})}
      */
-    static async send(target, data, params) {
-        const response = await fetch(target.toURL('https', params === null || params === void 0 ? void 0 : params.toString()), {
-            method: 'POST',
-            keepalive: true,
-            body: data,
+    static async send(target, data, timeout, params, agent = axios.post) {
+        await agent(target.toURL('https', params === null || params === void 0 ? void 0 : params.toString()), data, {
+            timeout,
         });
-        if (!response.ok) {
-            throw Object.assign(new Error(response.statusText), { statusCode: response.status });
-        }
     }
     _onClose() {
         while (true) {
@@ -167,7 +166,7 @@ export class Client {
             if (this._socket) {
                 return resolve();
             }
-            this._socket = new WebSocket(this._peer.toURL('wss', params === null || params === void 0 ? void 0 : params.toString()));
+            this._socket = new this.wsConstructor(this._peer.toURL('wss', params === null || params === void 0 ? void 0 : params.toString()));
             this._socket.addEventListener('error', this._onError.bind(this));
             this._socket.addEventListener('open', this._onOpen.bind(this));
             this._socket.addEventListener('close', this._onClose.bind(this));
