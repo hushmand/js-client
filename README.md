@@ -6,7 +6,6 @@ JS version of illchi client for node and browser
 [![Docs](https://img.shields.io/badge/TypeScript-Documentation-blue)](https://illchi.github.io/js-client/index.html)
 ## Instalation
 See [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#installing-a-package)
-
 ### Example use
 
 ```js
