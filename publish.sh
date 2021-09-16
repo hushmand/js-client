@@ -3,4 +3,4 @@ tsc
 npx typedoc index.ts
 git add .
 git commit
-git push --all --tags
+git push --a --tags
