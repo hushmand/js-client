@@ -5,7 +5,8 @@ import "websocket-polyfill";
 export declare class Peer {
     private readonly _broker;
     private readonly _id;
-    constructor(_broker: string, _id: string);
+    private readonly _tls;
+    constructor(_broker: string, _id: string, _tls?: boolean);
     /**
      * @returns {string} peer info encoded in `${Broker}/${ID}` format
      */
@@ -25,11 +26,15 @@ export declare class Peer {
      */
     get id(): string;
     /**
+     * @returns {boolean} - is tls encrypted
+     */
+    get isTLS(): boolean;
+    /**
      * return peer broker
      * @returns {string} - broker net address
      */
     get broker(): string;
-    toURL(scheme: 'wss' | 'https', params?: string): string;
+    toURL(scheme: 'ws' | 'http', params?: string): string;
 }
 /**
  * @typedef {( { value: Blob, done: false } | { value: undefined, done: true } )} iterator
@@ -56,6 +61,7 @@ export declare class Client {
     private _socket?;
     /**
      * @param {Peer} _peer
+     * @param {WebSocket} wsConstructor - optional injectable websocket constructor
      */
     constructor(_peer: Peer, wsConstructor?: {
         new (url: string, protocols?: string | string[] | undefined): WebSocket;
@@ -72,6 +78,7 @@ export declare class Client {
      * @param {data} data - data that will be sent
      * @param {number} timeout - timeout duration in ms to cancel the context
      * @param {URLSearchParams} params - optional parameters to send to the broker on send
+     * @param {(url:string,data:data,config:{timeout:number})=>void} agent - optional agent to send make `POST` request
      * @throws {(Error&{statusCode:number})}
      */
     static send(target: Peer, data: data, timeout: number, params?: URLSearchParams, agent?: <T = any, R = import("axios").AxiosResponse<T>>(url: string, data?: any, config?: import("axios").AxiosRequestConfig | undefined) => Promise<R>): Promise<void>;
@@ -101,7 +108,7 @@ export declare class Client {
      * static connect connects to the broker as peer and send optional params to the broker
      * See [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of}
      * @return {Promise<Client>}
-     * @param {peer} peer - connect as this peer id and broker
+     * @param {Peer} peer - connect as this peer id and broker
      * @param {URLSearchParams} [params] - optional parameters to send to the broker on connect
      */
     static connect(peer: Peer, params?: URLSearchParams): Promise<Client>;

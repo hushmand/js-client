@@ -4,9 +4,10 @@ import axios from 'axios';
  * @classdesc This is a Peer in illchi system
  */
 export class Peer {
-    constructor(_broker, _id) {
+    constructor(_broker, _id, _tls = true) {
         this._broker = _broker;
         this._id = _id;
+        this._tls = _tls;
     }
     /**
      * @returns {string} peer info encoded in `${Broker}/${ID}` format
@@ -36,6 +37,12 @@ export class Peer {
         return this._id;
     }
     /**
+     * @returns {boolean} - is tls encrypted
+     */
+    get isTLS() {
+        return this._tls;
+    }
+    /**
      * return peer broker
      * @returns {string} - broker net address
      */
@@ -43,6 +50,9 @@ export class Peer {
         return this._broker;
     }
     toURL(scheme, params) {
+        if (this.isTLS) {
+            scheme += 's';
+        }
         return `${scheme}://${this.broker}/${this.id}?${params}`;
     }
 }
@@ -52,6 +62,7 @@ export class Peer {
 export class Client {
     /**
      * @param {Peer} _peer
+     * @param {WebSocket} wsConstructor - optional injectable websocket constructor
      */
     constructor(_peer, wsConstructor = WebSocket) {
         this._peer = _peer;
@@ -66,10 +77,11 @@ export class Client {
      * @param {data} data - data that will be sent
      * @param {number} timeout - timeout duration in ms to cancel the context
      * @param {URLSearchParams} params - optional parameters to send to the broker on send
+     * @param {(url:string,data:data,config:{timeout:number})=>void} agent - optional agent to send make `POST` request
      * @throws {(Error&{statusCode:number})}
      */
     static async send(target, data, timeout, params, agent = axios.post) {
-        await agent(target.toURL('https', params === null || params === void 0 ? void 0 : params.toString()), data, {
+        await agent(target.toURL('http', params === null || params === void 0 ? void 0 : params.toString()), data, {
             timeout,
         });
     }
@@ -149,7 +161,7 @@ export class Client {
      * static connect connects to the broker as peer and send optional params to the broker
      * See [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of}
      * @return {Promise<Client>}
-     * @param {peer} peer - connect as this peer id and broker
+     * @param {Peer} peer - connect as this peer id and broker
      * @param {URLSearchParams} [params] - optional parameters to send to the broker on connect
      */
     static async connect(peer, params) {
@@ -166,7 +178,7 @@ export class Client {
             if (this._socket) {
                 return resolve();
             }
-            this._socket = new this.wsConstructor(this._peer.toURL('wss', params === null || params === void 0 ? void 0 : params.toString()));
+            this._socket = new this.wsConstructor(this._peer.toURL('ws', params === null || params === void 0 ? void 0 : params.toString()));
             this._socket.addEventListener('error', this._onError.bind(this));
             this._socket.addEventListener('open', this._onOpen.bind(this));
             this._socket.addEventListener('close', this._onClose.bind(this));

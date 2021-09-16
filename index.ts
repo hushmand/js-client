@@ -8,6 +8,7 @@ export class Peer {
     constructor(
         private readonly _broker: string,
         private readonly _id: string,
+        private readonly _tls: boolean = true
     ) {
     }
 
@@ -43,6 +44,13 @@ export class Peer {
     }
 
     /**
+     * @returns {boolean} - is tls encrypted
+     */
+    get isTLS() {
+        return this._tls
+    }
+
+    /**
      * return peer broker
      * @returns {string} - broker net address
      */
@@ -50,7 +58,10 @@ export class Peer {
         return this._broker
     }
 
-    toURL(scheme: 'wss' | 'https', params?: string) {
+    toURL(scheme: 'ws' | 'http', params?: string) {
+        if (this.isTLS) {
+            scheme += 's'
+        }
         return `${scheme}://${this.broker}/${this.id}?${params}`
     }
 }
@@ -75,6 +86,7 @@ export class Client {
 
     /**
      * @param {Peer} _peer
+     * @param {WebSocket} wsConstructor - optional injectable websocket constructor
      */
     constructor(
         private readonly _peer: Peer,
@@ -89,10 +101,11 @@ export class Client {
      * @param {data} data - data that will be sent
      * @param {number} timeout - timeout duration in ms to cancel the context
      * @param {URLSearchParams} params - optional parameters to send to the broker on send
+     * @param {(url:string,data:data,config:{timeout:number})=>void} agent - optional agent to send make `POST` request
      * @throws {(Error&{statusCode:number})}
      */
     static async send(target: Peer, data: data, timeout: number, params?: URLSearchParams, agent = axios.post) {
-        await agent(target.toURL('https', params?.toString()), data, {
+        await agent(target.toURL('http', params?.toString()), data, {
             timeout,
         })
     }
@@ -178,7 +191,7 @@ export class Client {
      * static connect connects to the broker as peer and send optional params to the broker
      * See [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of}
      * @return {Promise<Client>}
-     * @param {peer} peer - connect as this peer id and broker
+     * @param {Peer} peer - connect as this peer id and broker
      * @param {URLSearchParams} [params] - optional parameters to send to the broker on connect
      */
     static async connect(peer: Peer, params?: URLSearchParams) {
@@ -196,7 +209,7 @@ export class Client {
             if (this._socket) {
                 return resolve()
             }
-            this._socket = new this.wsConstructor(this._peer.toURL('wss', params?.toString()))
+            this._socket = new this.wsConstructor(this._peer.toURL('ws', params?.toString()))
             this._socket.addEventListener('error', this._onError.bind(this))
             this._socket.addEventListener('open', this._onOpen.bind(this))
             this._socket.addEventListener('close', this._onClose.bind(this))
