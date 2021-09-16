@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @classdesc This is a Peer in illchi system
  */
-class Peer {
+export class Peer {
     constructor(_broker, _id) {
         this._broker = _broker;
         this._id = _id;
@@ -14,6 +12,9 @@ class Peer {
     toString() {
         return `${this.broker}/${this.id}`;
     }
+    /**
+     * @alias toString
+     */
     toJSON() {
         return this.toString();
     }
@@ -43,13 +44,12 @@ class Peer {
         return `${scheme}://${this.broker}/${this.id}?${params}`;
     }
 }
-exports.Peer = Peer;
 /**
  * @classdesc This is a Client for illchi broker
  */
-class Client {
+export class Client {
     /**
-     * @param {Peer}
+     * @param {Peer} _peer
      */
     constructor(_peer) {
         this._peer = _peer;
@@ -179,4 +179,3 @@ class Client {
         });
     }
 }
-exports.Client = Client;
