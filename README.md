@@ -4,8 +4,10 @@ JS version of illchi client for node and browser
 
 [![GitHub](https://img.shields.io/github/license/illchi/js-client)](https://github.com/illchi/js-client/blob/master/LICENSE)
 [![Docs](https://img.shields.io/badge/TypeScript-Documentation-blue)](https://illchi.github.io/js-client/index.html)
+## Instalation
+See [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#installing-a-package)
 
-##### example use
+### Example use
 
 ```js
 //peer
