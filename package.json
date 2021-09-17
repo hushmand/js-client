@@ -1,7 +1,7 @@
 {
   "name": "@illchi/js-client",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "isomorphic illchi client for node and browser",
   "main": "index.js",
   "scripts": {
