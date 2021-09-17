@@ -1,6 +1,5 @@
 .idea
 *.iml
-package-lock.json
 *.log
 node_modules
 index.d.ts
