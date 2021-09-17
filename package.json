@@ -1,11 +1,11 @@
 {
   "name": "@illchi/js-client",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "isomorphic illchi client for node and browser",
   "main": "index.js",
   "scripts": {
-    "test": "node test",
+    "test": "exit 0",
     "install": "npx tsc",
     "docs": "npm install typedoc && npx typedoc"
   },
@@ -37,7 +37,6 @@
   "bugs": {
     "url": "https://github.com/illchi/js-client/issues"
   },
-  "dist": {},
   "homepage": "https://github.com/illchi/js-client#readme",
   "optionalDependencies": {
     "typedoc": "^0.22.3"
