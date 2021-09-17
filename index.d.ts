@@ -64,7 +64,7 @@ export declare class Client {
      * @param {WebSocket} wsConstructor - optional injectable websocket constructor
      */
     constructor(_peer: Peer, wsConstructor?: {
-        new (url: string, protocols?: string | string[] | undefined): WebSocket;
+        new (url: string | URL, protocols?: string | string[] | undefined): WebSocket;
         prototype: WebSocket;
         readonly CLOSED: number;
         readonly CLOSING: number;

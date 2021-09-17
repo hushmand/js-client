@@ -2,3 +2,5 @@ docs
 node_modules
 package-lock.json
 publish.sh
+index.d.ts
+index.js
